@@ -1,0 +1,86 @@
+PRACTICA 3:
+----------------en rocky------------------------
+sudo dnf update -y
+sudo dnf install ansible -y
+sudo dnf install python3-pip -y
+pip3 install pywinrm
+
+-------------------------En digital Ocean------------------------------
+2. Configurar Cliente Ubuntu (DigitalOcean)
+#Crear el usuario ansible:
+
+ssh root@161.35.63.70
+
+sudo adduser ansible
+
+
+#Darle permisos de sudo:
+
+sudo usermod -aG sudo ansible
+
+--------------------------en rocky-----------------------
+#Configurar el acceso SSH sin contraseña:
+
+
+ssh-keygen -t rsa -b 2048
+cat /root/.ssh/id_rsa.pub
+
+sudo mkdir -p /home/ansible/.ssh
+sudo nano /home/ansible/.ssh/authorized_keys
+pega la llave en ~/.ssh/authorized_keys
+
+------------------en Windows-----------------------------
+3. Configurar Cliente Windows (PowerShell en Windows)
+#Habilitar WinRM:
+
+winrm quickconfig
+winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+winrm set winrm/config/service/auth '@{Basic="true"}'
+netsh advfirewall firewall add rule name="WinRM" dir=in action=allow protocol=TCP localport=5985
+
+
+#Crear el usuario ansible en Windows:
+
+net user ansible 1234 /add
+net localgroup administradores ansible /add
+
+4. Configurar Inventario de Ansible en Rocky Linux
+
+sudo nano /etc/ansible/hosts
+Añadir:
+
+[OS3vm]
+161.35.63.70 ansible_user=ansible ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[win]
+192.168.175.132 ansible_user=ansible ansible_password=1234 ansible_connection=winrm ansible_winrm_transport=basic ansible_winrm_port=5985 ansible_winrm_server_cert_validation=ignore
+
+
+#Asignamos la llave a la maquina OS3vm (digital Ocean)
+
+cat ~/.ssh/id_rsa.pub
+
+
+COPIAMOS LA LLAVE
+
+
+----------------------en Digital Ocean-------------------
+#Accedemos al usuario Ansible
+
+su - ansible
+
+sudo nano /home/ansible/.ssh/authorized_keys
+
+PEGAMOS LA LLAVE
+
+------------------En Rocky-----------------------------------
+5. Probar la Conexión con el Módulo ping
+#Para Ubuntu:
+
+ansible OS3vm -m ping
+
+
+#Para Windows:
+
+
+ansible win -m win_ping

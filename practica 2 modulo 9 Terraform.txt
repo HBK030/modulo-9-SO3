@@ -1,0 +1,114 @@
+# 1. Instalar dependencias
+sudo dnf install -y yum-utils
+
+# 2. Agregar repositorio de HashiCorp
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+
+# 3. Instalar Terraform
+sudo dnf install -y terraform
+
+# 4. Verificar instalación
+terraform --version
+
+# Configuración de terraform
+
+# 1. Crear directorio del proyecto
+mkdir do-terraform && cd do-terraform
+
+# Creacion de archivo de provider
+cat > provider.tf <<EOF
+terraform {
+  required_providers {
+    digitalocean = {
+      source = "digitalocean/digitalocean"
+      version = "~> 2.0"
+    }
+  }
+}
+
+provider "digitalocean" {
+  token = var.do_token
+}
+EOF
+
+
+----------------------------
+
+# Creacion de variables
+
+cat > variables.tf <<EOF
+variable "do_token" {
+  description = "API Token de DigitalOcean"
+  type        = string
+  sensitive   = true
+}
+
+variable "ssh_key_name" {
+  description = "Nombre de la clave SSH en DigitalOcean"
+  type        = string
+  default     = "edan-key"
+}
+
+variable "ssh_public_key" {
+  description = "Clave pública SSH"
+  type        = string
+}
+EOF
+
+--------------------------------------------------------
+
+
+# Configuracion de la VM (main.tf)
+
+
+cat > main.tf <<EOF
+resource "digitalocean_droplet" "OS3vm" {
+  image    = "ubuntu-22-04-x64"
+  name     = "OS3vm"
+  region   = "nyc1"
+  size     = "s-1vcpu-1gb"
+  ssh_keys = [digitalocean_ssh_key.default.fingerprint]
+}
+
+resource "digitalocean_ssh_key" "default" {
+  name       = var.ssh_key_name
+  public_key = var.ssh_public_key
+}
+
+output "ip_publica" {
+  value = digitalocean_droplet.OS3vm.ipv4_address
+}
+EOF
+
+----------------------------------------------------
+
+# Configuracion terraform.tfvars con credenciales ACTUALIZADAS
+
+cat > terraform.tfvars <<EOF
+do_token = "Tu_Token_Digital_Ocean"
+ssh_public_key = "Tu_Llave_SSH_Digital_Ocean"
+EOF
+
+
+
+-----------------------------------------------------------------------------------------------------
+
+# Inicio y despliegue de la VM
+
+# 1. Inicializar Terraform
+
+terraform init
+
+# 2. Verificar el plan de ejecución
+
+terraform plan
+
+# 3. Aplicar los cambios (crear la VM)
+terraform apply -auto-approve
+
+Despues de iniciada la conecto 
+
+
+ssh root@IP de Ocean
+
+Hacer el ssh como usuario root 

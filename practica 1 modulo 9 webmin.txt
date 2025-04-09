@@ -1,0 +1,27 @@
+Instalacion de Webmin
+
+# 1. Actualizar el sistema
+sudo dnf update -y
+
+# 2. Instalar dependencias necesarias
+sudo dnf install -y perl perl-Net-SSLeay openssl perl-IO-Tty perl-Encode-Detect
+
+# 3. Descargar el paquete RPM de Webmin
+wget https://download.webmin.com/download/yum/webmin-2.021-1.noarch.rpm
+
+# 4. Instalar Webmin
+sudo rpm -Uvh webmin-2.021-1.noarch.rpm
+
+# 5. Habilitar el firewall para Webmin (puerto 10000 por defecto)
+sudo firewall-cmd --zone=public --add-port=10000/tcp --permanent
+sudo firewall-cmd --reload
+
+# 6. Habilitar e iniciar el servicio
+sudo systemctl enable --now webmin
+
+# Permitir a Webmin funcionar con SELinux
+sudo setsebool -P httpd_can_network_connect 1
+
+# 7. Reiniciar contraseña del root
+sudo passwd root
+

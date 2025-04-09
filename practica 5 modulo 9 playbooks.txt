@@ -1,0 +1,34 @@
+nano install_notepad++.yml
+
+- name: Install Notepad++ on Windows
+  hosts: win
+  tasks:
+    - name: Install Notepad++ using Chocolatey
+      win_chocolatey:
+        name: notepadplusplus
+        state: present
+
+ansible-playbook install_notepad++.yml
+
+
+nano update_repositories.yml
+
+- name: Update APT repositories on Linux
+  hosts: OS3vm
+  become: yes
+  tasks:
+    - name: Update apt repositories
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+        autoremove: yes
+        autoclean: yes
+
+ansible-playbook update_repositories.yml
+
+sudo apt update
+cat /var/log/apt/history.log

@@ -1,0 +1,8 @@
+touch ansible.txt
+echo "practica 4 hecha por Edan Ernesto Cadena Caamaño, matricula 2024-1913" > ansible.txt
+
+
+ansible win -m win_copy -a "src=/home/fulanazo/ansible.txt dest=C:/Users/ansible/Documents/"
+
+
+ansible OS3vm -m reboot -b
